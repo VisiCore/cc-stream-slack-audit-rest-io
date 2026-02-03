@@ -1,0 +1,111 @@
+_in_vct_slack_audit:
+  type: collection
+  ttl: 4h
+  ignoreGroupJobsLimit: false
+  removeFields: []
+  resumeOnBoot: true
+  schedule:
+    cronSchedule: 3-59/5 * * * *
+    maxConcurrentRuns: 1
+    skippable: false
+    resumeMissed: true
+    run:
+      rescheduleDroppedTasks: true
+      maxTaskReschedule: 1
+      logLevel: info
+      jobTimeout: 60m
+      mode: run
+      timeRangeType: relative
+      timeWarning: {}
+      expression: "true"
+      minTaskSize: 1MB
+      maxTaskSize: 10MB
+      stateTracking:
+        stateUpdateExpression: "__timestampExtracted !== false && {latestTime:
+          (state.latestTime || 0) > _time ? state.latestTime : _time}"
+        stateMergeExpression:
+          "(prevState.latestTime || 0) > newState.latestTime ?
+          prevState : newState"
+        enabled: true
+    enabled: true
+  streamtags:
+    - vct
+    - slack
+    - audit
+    - rest
+  workerAffinity: false
+  collector:
+    conf:
+      discovery:
+        discoverType: none
+      collectMethod: get
+      pagination:
+        type: response_body
+        maxPages: 0
+        attribute:
+          - response_metadata.next_cursor
+        lastPageExpr: "!response_metadata.next_cursor"
+      authentication: none
+      timeout: 0
+      useRoundRobinDns: false
+      disableTimeFilter: false
+      decodeUrl: false
+      rejectUnauthorized: true
+      captureHeaders: false
+      stopOnEmptyResults: true
+      safeHeaders:
+        - Authorization
+      retryRules:
+        type: backoff
+        interval: 1000
+        limit: 5
+        multiplier: 2
+        maxIntervalMs: 20000
+        codes:
+          - 429
+          - 503
+        enableHeader: true
+        retryConnectTimeout: false
+        retryConnectReset: false
+        retryHeaderName: retry-after
+      __scheduling:
+        stateTracking: {}
+      scopes:
+        - https://www.googleapis.com/auth/admin.reports.audit.readonly
+      collectUrl: C.vars.SLACK_AUDIT_API_URL
+      collectRequestParams:
+        - name: limit
+          value: C.vars.limit
+        - name: action
+          value: C.vars.actions
+        - name: oldest
+          value: "`${state.latestTime}`"
+        - name: latest
+          value: "`${latest}`"
+      collectRequestHeaders:
+        - name: Authorization
+          value: "`Bearer ${C.vars['slack_oauth_token']}`"
+    destructive: false
+    encoding: utf8
+    type: rest
+  input:
+    type: collection
+    staleChannelFlushMs: 10000
+    sendToRoutes: true
+    preprocess:
+      disabled: true
+    throttleRatePerSec: 0 MB
+    breakerRulesets:
+      - vct-slack-audit-eb
+    metadata:
+      - name: datatype
+        value: C.vars.datatype
+  savedState:
+    restCollectorState:
+      data:
+        latestTime:
+  description: This REST Collector Source establishes a scheduled polling
+    mechanism to ingest and centralize Slack Audit Logs via the official API,
+    ensuring comprehensive visibility into enterprise security and compliance
+    events
+  notifications: []

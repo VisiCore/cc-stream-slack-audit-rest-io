@@ -1,0 +1,23 @@
+vct-slack-audit-eb:
+  lib: custom
+  minRawLength: 256
+  rules:
+    - condition: "true"
+      type: json_array
+      timestampAnchorRegex: /\"date_create\":/
+      timestamp:
+        type: format
+        length: 150
+        format: "%s"
+      timestampTimezone: local
+      maxEventBytes: 51200
+      disabled: false
+      parserEnabled: false
+      shouldUseDataRaw: false
+      jsonExtractAll: false
+      jsonArrayField: entries
+      parentFieldsToCopy: []
+      name: vct-slack-audit-eb-rule
+  description: Slack Audit Logs event breaker ruleset to parse _time and split
+    events by the 'entries' array field in the response
+  tags: vct,slack,audit,rest

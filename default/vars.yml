@@ -1,0 +1,57 @@
+datatype:
+  type: any
+  description: This is used for Cribl filtering on routes and pipelines and also
+    maps to the 'sourcetype' field if Splunk processing is enabled.
+  value: "'slack:audit'"
+  tags: vct,slack,audit,rest,sourcetype,parameter
+enable_splunk_fields:
+  type: boolean
+  lib: custom
+  description: Set to "true" to enable standard Splunk metadata fields (index,
+    sourcetype, source, host)
+  value: "false"
+  tags: vct,slack,audit,rest,splunk,parameter
+slack_audit_log_index:
+  type: string
+  description:
+    The index to send Slack Audit Logs to. Set this to 'slack_audit' in
+    order to make this plug-and-play with the Splunk app for Slack. Ensure this
+    index exists in your Cribl deployment before collecting data.
+  value: "'main'"
+  tags: vct,slack,audit,rest,index
+slack_oauth_token:
+  type: encryptedString
+  description:
+    Slack Audit Logs API OAuth2 Token. This token must be a user token
+    generated from a Slack app installed by the Slack Enterprise Owner. You must
+    commit and deploy after updating this value. The value will always start
+    with "xoxp-" (no quotes). You MUST commit and deploy after updating this
+    value.
+  value: "You MUST commit and deploy after updating this value. Replace this with your OAuth2 token starting with xoxp-"
+  tags: vct,slack,audit,rest,secret,oauth,token
+  lib: custom
+limit:
+  type: number
+  description: Number of results to optimistically return, maximum 9999.
+  value: "'0'"
+  tags: vct,slack,audit,rest,parameter
+actions:
+  type: string
+  description:
+    "Name of the action or actions (separated by commas) to filter on,
+    maximum 30. Leave as '' (empty string) to collect all. See:
+    https://docs.slack.dev/reference/audit-logs-api/methods-actions-reference"
+  value: "''"
+  tags: vct,slack,audit,rest,parameter
+destination:
+  type: string
+  lib: custom
+  description: Destination to send data to
+  value: "'default'"
+  tags: vct,slack,audit,rest,parameter
+SLACK_AUDIT_API_URL:
+  type: string
+  description: "The URL of the Slack Audit Log API to pull from. Do not change.
+    This will always be: 'https://api.slack.com/audit/v1/logs'"
+  value: "'https://api.slack.com/audit/v1/logs'"
+  tags: vct,slack,audit,rest,url

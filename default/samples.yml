@@ -1,0 +1,28 @@
+UnpGRP:
+  sampleName: slack-audit-log-events-large.json
+  description: Sample of Slack Audit Log data collected through the API (215 events)
+  tags: vct,slack,audit,rest,log,events
+  created: 1766105092222
+  size: 564678
+  numEvents: 215
+WUg3Qh:
+  sampleName: slack-audit-log-events-small.json
+  description: Sample of Slack Audit Log data collected through the API (23 events)
+  tags: vct,slack,audit,rest,log,events,small
+  created: 1766105169301
+  size: 58509
+  numEvents: 23
+dqq1LH:
+  sampleName: slack-audit-log-events-user.json
+  description: Sample of Slack Audit User Log data collected through the API (25 events)
+  tags: vct,slack,audit,rest,log,events
+  created: 1766105569488
+  size: 60184
+  numEvents: 25
+RoMBBc:
+  sampleName: slack-audit-log-events-ai-sample.json
+  description: Sample of Slack Audit AI Log data collected through the API (4 events)
+  tags: vct,slack,audit,rest,log,events
+  created: 1766106125064
+  size: 10809
+  numEvents: 4

@@ -1,0 +1,66 @@
+output: default
+streamtags:
+  - vct
+  - slack
+  - audit
+  - rest
+groups: {}
+functions:
+  - id: comment
+    filter: "true"
+    conf:
+      comment:
+        This pipeline processes Slack audit log events by parsing the raw JSON
+        data into individual fields, enriching the events with standard metadata
+        fields such as index, sourcetype, source, and host, and then
+        re-serializing the JSON data while removing the original `date_create`
+        field. Overall, it transforms raw Slack audit logs into structured,
+        metadata-enriched events suitable for further analysis or storage.
+  - id: eval
+    filter: "true"
+    disabled: null
+    conf:
+      add:
+        - disabled: false
+          name: _raw
+          value: JSON.parse(_raw)
+      remove:
+        - _raw.date_create
+    description: Parse _raw JSON into individual fields
+  - id: eval
+    filter: C.vars.enable_splunk_fields
+    disabled: null
+    conf:
+      add:
+        - disabled: false
+          name: index
+          value: C.vars.slack_audit_log_index
+        - disabled: false
+          name: sourcetype
+          value: C.vars.datatype
+        - disabled: false
+          name: source
+          value: "'slack_audit_logs'"
+        - disabled: false
+          name: host
+          value: _raw.context.location.domain
+    description:
+      Set variable 'enable_splunk_fields' to true to enable these fields.
+      Set standard metadata fields to values expected by the Splunk add-on for
+      Slack.
+  - id: serialize
+    filter: "true"
+    disabled: null
+    conf:
+      type: json
+      dstField: _raw
+      fields:
+        - "*"
+      srcField: _raw
+    description: Re-serialize the raw JSON without the `date_create` field
+description: This pipeline processes Slack audit log events by parsing the raw
+  JSON data into individual fields, enriching the events with standard metadata
+  fields such as index, sourcetype, source, and host, and then re-serializing
+  the JSON data while removing the original `date_create` field. Overall, it
+  transforms raw Slack audit logs into structured, metadata-enriched events
+  suitable for further analysis or storage.

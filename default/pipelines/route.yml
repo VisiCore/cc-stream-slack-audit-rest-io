@@ -1,0 +1,18 @@
+id: default
+groups: {}
+comments:
+  - id: 0YCpfN
+    comment: Define DataType Var in Knowledge > Variable > datatype default
+      value='slack:audit'
+    index: 0
+routes:
+  - id: default
+    name: _vct_slack_audit_events
+    final: true
+    disabled: false
+    pipeline: _vct_slack_audit_events
+    description: Route Slack audit events to the parsing and enrichment pipeline
+    enableOutputExpression: true
+    outputExpression: C.vars.destination
+    filter: datatype==C.vars.datatype
+    output: C.vars.destination
