@@ -11,10 +11,10 @@ functions:
     conf:
       comment:
         This pipeline processes Slack audit log events by parsing the raw JSON
-        data into individual fields, enriching the events with standard metadata
-        fields such as index, sourcetype, source, and host, and then
-        re-serializing the JSON data while removing the original `date_create`
-        field. Overall, it transforms raw Slack audit logs into structured,
+        data into individual fields, dropping events already seen by `id`,
+        enriching the events with standard metadata fields such as index,
+        sourcetype, source, and host, and then re-serializing the JSON data.
+        Overall, it transforms raw Slack audit logs into structured,
         metadata-enriched events suitable for further analysis or storage.
   - id: eval
     filter: "true"
@@ -24,8 +24,6 @@ functions:
         - disabled: false
           name: _raw
           value: JSON.parse(_raw)
-      remove:
-        - _raw.date_create
     description: Parse _raw JSON into individual fields
   - id: suppress
     filter: _raw != null && _raw.id != null
@@ -74,10 +72,10 @@ functions:
       fields:
         - "*"
       srcField: _raw
-    description: Re-serialize the raw JSON without the `date_create` field
+    description: Re-serialize the enriched JSON back into `_raw`
 description: This pipeline processes Slack audit log events by parsing the raw
-  JSON data into individual fields, enriching the events with standard metadata
-  fields such as index, sourcetype, source, and host, and then re-serializing
-  the JSON data while removing the original `date_create` field. Overall, it
+  JSON data into individual fields, dropping events already seen by `id`,
+  enriching the events with standard metadata fields such as index, sourcetype,
+  source, and host, and then re-serializing the JSON data. Overall, it
   transforms raw Slack audit logs into structured, metadata-enriched events
   suitable for further analysis or storage.
