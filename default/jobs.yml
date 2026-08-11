@@ -79,9 +79,10 @@ _in_vct_slack_audit:
         - name: action
           value: C.vars.actions
         - name: oldest
-          value: "`${state.latestTime}`"
+          value: "`${Math.max(0, (state.latestTime || 0) -
+            C.vars.lookback_overlap_seconds)}`"
         - name: latest
-          value: "`${latest}`"
+          value: "`${Math.floor(Date.now() / 1000) - C.vars.settle_lag_seconds}`"
         - name: cursor
           value: "`${__e['response_metadata.next_cursor'] || ''}`"
       collectRequestHeaders:

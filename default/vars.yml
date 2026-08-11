@@ -35,6 +35,26 @@ limit:
   description: Number of results to optimistically return, maximum 9999.
   value: "'0'"
   tags: vct,slack,audit,rest,parameter
+settle_lag_seconds:
+  type: number
+  description:
+    How far behind the present the collection window ends, in seconds. The
+    Slack Audit Logs API publishes no availability SLA, so the collector stays
+    this far behind real time rather than reading a window Slack may still be
+    filling. Lower this for closer to real-time collection, at the cost of
+    missing more late-arriving events.
+  value: "300"
+  tags: vct,slack,audit,rest,parameter
+lookback_overlap_seconds:
+  type: number
+  description:
+    How far before the last collected event the next collection window
+    starts, in seconds. This deliberate overlap re-reads recent events so a
+    partially completed run is refilled on the next run. Keep this greater than
+    or equal to the collection interval. Overlap is what makes repeated events
+    expected - see the deduplication note in the README.
+  value: "300"
+  tags: vct,slack,audit,rest,parameter
 actions:
   type: string
   description:
