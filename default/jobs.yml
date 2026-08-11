@@ -70,8 +70,6 @@ _in_vct_slack_audit:
         retryHeaderName: retry-after
       __scheduling:
         stateTracking: {}
-      scopes:
-        - https://www.googleapis.com/auth/admin.reports.audit.readonly
       collectUrl: C.vars.SLACK_AUDIT_API_URL
       collectRequestParams:
         - name: limit
