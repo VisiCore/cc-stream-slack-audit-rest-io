@@ -1,0 +1,52 @@
+# Pack validation
+#
+# `validate` runs the shared Cribl pack test suite and needs no credentials,
+# so it passes on any checkout including forks.
+#
+# `live-smoke` exercises cursor pagination against the real API and is opt-in:
+# it runs only when the repository variable SLACK_LIVE_TESTS is set to 'true'
+# and a token secret is configured. Without those it is skipped, not failed.
+
+name: Pack validation
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate pack structure
+    permissions:
+      contents: read
+    uses: dryvist/.github/.github/workflows/_cribl-pack-validate.yml@main
+    with:
+      pack_type: stream
+      test_suite_owner: dryvist
+
+  live-smoke:
+    name: Live pagination check (opt-in)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: ${{ vars.SLACK_LIVE_TESTS == 'true' }}
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout pack
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Check cursor pagination advances
+        env:
+          # Read from the environment inside the script, never interpolated
+          # into the command line, so the token cannot land in a process list.
+          SLACK_AUDIT_TOKEN: ${{ secrets.SLACK_AUDIT_TOKEN }}
+          SLACK_AUDIT_API_URL: https://api.slack.com/audit/v1/logs
+        run: python3 .github/scripts/check_pagination.py
