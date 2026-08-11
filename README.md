@@ -93,8 +93,56 @@ Everything you can change lives in **Knowledge** > **Variables** inside the pack
 | `slack_audit_log_index` | Target index when Splunk fields are enabled. |
 | `actions` | Comma-separated action names to collect. Leave empty for all actions. |
 | `limit` | Page size requested from the API. |
+| `settle_lag_seconds` | How far behind the present each collection window ends. |
+| `lookback_overlap_seconds` | How far back each window starts before the last collected event. |
 
 Commit and Deploy after changing any variable.
+
+## How collection timing works
+
+The collector runs every 5 minutes. Two settings control which slice of time
+each run asks for.
+
+**The collector stays 5 minutes behind the present.** A run does not ask for
+events up to "now". It asks for events up to 5 minutes ago. Slack does not
+promise how quickly an audit event becomes readable through the API, so reading
+right up to the present risks asking for a period Slack has not finished
+filling. `settle_lag_seconds` controls this gap.
+
+**Each run re-reads the last 5 minutes.** A run starts its window 5 minutes
+before the last event it collected, not at that event. If a run fails part way
+through, the next run covers the ground it missed. `lookback_overlap_seconds`
+controls this overlap.
+
+Together these mean the pack **collects most events twice on purpose**. The
+pipeline drops the repeat by matching on the event `id`, so your destination
+normally sees each event once.
+
+### If you need events sooner
+
+Lower `settle_lag_seconds`. Events reach your destination faster. The trade-off
+is that more events arrive at Slack later than your window, and those are
+missed.
+
+### If you do not need events quickly
+
+Raise the collection interval on the schedule, and raise
+`lookback_overlap_seconds` to match it. You get the same completeness with fewer
+API calls and less rate-limit pressure. Keep the overlap greater than or equal
+to the interval, or gaps can open between runs.
+
+### Repeated events
+
+Delivery is **at-least-once**. The pipeline removes repeats it can see, but two
+situations can still let one through:
+
+* A quiet period longer than an hour, which is how long the pipeline remembers
+  an `id`.
+* A Worker Process restart, which clears that memory.
+
+The `id` field is unique per audit event and is the key to deduplicate on. In
+Splunk, `| dedup id` is enough. Keep this in mind if you compare event counts
+against the Slack API directly.
 
 ## Destination
 
@@ -158,8 +206,8 @@ To contact us, please email <CriblPacks@VisiCoreTech.com>.
 ### Version 1.0.0 - 2025-12-18
 
 * **README**: Final cleanup before submission
-* **State Tracking**: Guarantee accurate event processing and avoid duplicates
-  by always pulling from the timestamp of the last succesfully pulled event
+* **State Tracking**: Track the timestamp of the last successfully pulled event
+  and start the next collection from it
 * **Default Index**: Changed default index from `slack_audit` to `main` to avoid
   potential invalid index errors in downstream systems
 * **Data Samples**: Upload distinct data samples for: all actions (small), all
