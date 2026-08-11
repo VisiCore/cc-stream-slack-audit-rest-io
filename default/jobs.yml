@@ -44,7 +44,7 @@ _in_vct_slack_audit:
         maxPages: 0
         attribute:
           - response_metadata.next_cursor
-        lastPageExpr: "!response_metadata.next_cursor"
+        lastPageExpr: "!__e['response_metadata.next_cursor']"
       authentication: none
       timeout: 0
       useRoundRobinDns: false
@@ -52,7 +52,7 @@ _in_vct_slack_audit:
       decodeUrl: false
       rejectUnauthorized: true
       captureHeaders: false
-      stopOnEmptyResults: true
+      stopOnEmptyResults: false
       safeHeaders:
         - Authorization
       retryRules:
@@ -82,6 +82,8 @@ _in_vct_slack_audit:
           value: "`${state.latestTime}`"
         - name: latest
           value: "`${latest}`"
+        - name: cursor
+          value: "`${__e['response_metadata.next_cursor'] || ''}`"
       collectRequestHeaders:
         - name: Authorization
           value: "`Bearer ${C.vars['slack_oauth_token']}`"
