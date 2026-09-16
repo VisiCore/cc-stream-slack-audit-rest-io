@@ -19,6 +19,17 @@ dqq1LH:
   created: 1766105569488
   size: 60184
   numEvents: 25
+Kp7mZt:
+  sampleName: slack-audit-log-events-dedup-edge-cases.json
+  description:
+    Events cloned from the other samples to cover deduplication edge cases
+    (11 events, 7 distinct ids). Contains events sharing one date_create
+    second, events repeated as the collection window overlap delivers them,
+    and one event with no id field.
+  tags: vct,slack,audit,rest,log,events,dedup,edge-cases
+  created: 1786451400000
+  size: 27752
+  numEvents: 11
 RoMBBc:
   sampleName: slack-audit-log-events-ai-sample.json
   description: Sample of Slack Audit AI Log data collected through the API (4 events)
