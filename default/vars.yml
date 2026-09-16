@@ -32,8 +32,12 @@ slack_oauth_token:
   lib: custom
 limit:
   type: number
-  description: Number of results to optimistically return, maximum 9999.
-  value: "'0'"
+  description:
+    Number of results to optimistically request per page. This is a maximum,
+    not a guarantee - a page may return fewer results while further results
+    remain, so pagination continues until the API reports no next cursor. The
+    cursor pagination guidance recommends 100 to 200 per call.
+  value: "100"
   tags: vct,slack,audit,rest,parameter
 settle_lag_seconds:
   type: number
