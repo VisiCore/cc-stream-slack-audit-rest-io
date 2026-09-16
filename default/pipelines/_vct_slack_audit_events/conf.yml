@@ -27,6 +27,23 @@ functions:
       remove:
         - _raw.date_create
     description: Parse _raw JSON into individual fields
+  - id: suppress
+    filter: _raw != null && _raw.id != null
+    disabled: false
+    conf:
+      keyExpr: _raw.id
+      allow: 1
+      suppressPeriodSec: 3600
+      dropEventsMode: true
+      maxCacheSize: 50000
+      cacheIdleTimeoutPeriods: 2
+      numEventsIdleTimeoutTrigger: 10000
+    description:
+      Allow one event per audit log `id` per hour. The collection window
+      overlaps deliberately, so each event is normally retrieved more than
+      once. This is a best-effort reducer bounded by the cache size and held
+      per Worker Process - `id` remains the idempotency key for downstream
+      deduplication.
   - id: eval
     filter: C.vars.enable_splunk_fields
     disabled: null
